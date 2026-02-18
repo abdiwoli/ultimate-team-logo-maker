@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ultimate Team Logo Maker</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Oswald:wght@500;700&family=Roboto+Condensed:wght@700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div id="app">
+        <div class="container">
+            <h1>Ultimate Profile Generator</h1>
+
+            <div class="main-layout">
+                <div class="controls-area">
+
+                    <div class="control-group">
+                        <h3>1. Player Info</h3>
+                        <div class="row">
+                            <div class="col">
+                                <label>Name</label>
+                                <input type="text" id="nameInput" value="BARRE">
+                            </div>
+                            <div class="col">
+                                <label>Number</label>
+                                <input type="text" id="numberInput" value="15">
+                            </div>
+                        </div>
+                        <label>Upload Logo</label>
+                        <input type="file" id="logoInput" accept="image/*">
+
+                        <label style="margin-top: 10px;">Background Texture (Optional)</label>
+                        <input type="file" id="bgImageInput" accept="image/*">
+
+                        <label style="margin-top: 15px;">Logo Shape</label>
+                        <select id="shapeInput"
+                            style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                            <option value="Circle">Circle</option>
+                            <option value="Shield">Shield</option>
+                            <option value="Badge">Badge</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <h3>2. Colors</h3>
+                        <div class="row">
+                            <div class="col">
+                                <label>Ring Background</label>
+                                <input type="color" id="ringColorInput" value="#D4AF37">
+                                <label style="font-size: 0.8em; margin-top: 5px;">Opacity: <span
+                                        id="ringOpacityValue">0%</span></label>
+                                <input type="range" id="ringOpacityInput" min="0" max="100" value="0"
+                                    style="width: 100%;">
+                            </div>
+                            <div class="col">
+                                <label>Text Color</label>
+                                <input type="color" id="textColorInput" value="#2b369b">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label>Stripes</label>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="color" id="stripeColorInput" value="#2b369b">
+                                    <label style="font-size: 0.8em; margin: 0;"><input type="checkbox"
+                                            id="showStripesCheck" checked> Show</label>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <label>Inner Background</label>
+                                <input type="color" id="centerBgInput" value="#ffffff">
+                                <label style="font-size: 0.8em; margin-top: 5px;">Opacity: <span
+                                        id="centerOpacityValue">100%</span></label>
+                                <input type="range" id="centerOpacityInput" min="0" max="100" value="100"
+                                    style="width: 100%;">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <label>Inner Border</label>
+                                <input type="color" id="innerBorderColorInput" value="#2b369b">
+                            </div>
+                            <div class="col">
+                                <label>Base Background</label>
+                                <input type="color" id="baseColorInput" value="#ffffff">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="control-group">
+                        <h3>3. Sizes</h3>
+                        <label>Outer Circle Size</label>
+                        <input type="range" id="outerSizeInput" min="300" max="390" value="380">
+
+                        <label>Inner Circle Size</label>
+                        <input type="range" id="innerSizeInput" min="150" max="350" value="240">
+
+                        <label>Logo Zoom</label>
+                        <input type="range" id="logoZoomInput" min="50" max="200" value="100">
+                    </div>
+
+                    <div class="control-group">
+                        <h3>4. Advanced Tools</h3>
+                        <label>
+                            <input type="checkbox" id="removeWhiteCheck" checked>
+                            Remove White Background from Logo
+                        </label>
+                        <label>Tolerance (Strength)</label>
+                        <input type="range" id="toleranceInput" min="1" max="200" value="80">
+
+                        <label style="margin-top: 15px;">Font Family</label>
+                        <select id="fontFamilyInput"
+                            style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                            <option value="Arial">Arial (Default)</option>
+                            <option value="'Oswald', sans-serif">Oswald</option>
+                            <option value="'Roboto Condensed', sans-serif">Roboto Condensed</option>
+                            <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                        </select>
+
+                        <div class="row">
+                            <div class="col">
+                                <label>Text Stroke Width</label>
+                                <input type="range" id="textStrokeWidthInput" min="0" max="10" value="0">
+                            </div>
+                            <div class="col">
+                                <label>Stroke Color</label>
+                                <input type="color" id="textStrokeColorInput" value="#000000">
+                            </div>
+                        </div>
+
+                        <label>Name Spacing</label>
+                        <input type="range" id="nameSpacingInput" min="-10" max="50" value="0">
+
+                        <label>Number Spacing</label>
+                        <input type="range" id="numberSpacingInput" min="-10" max="50" value="0">
+
+                        <label>Name Radius Offset</label>
+                        <input type="range" id="nameRadiusInput" min="-100" max="100" value="0">
+
+                        <label>Number Radius Offset</label>
+                        <input type="range" id="numberRadiusInput" min="-100" max="100" value="0">
+
+
+                    </div>
+
+                </div>
+
+                <div class="preview-area">
+                    <canvas id="canvas" width="800" height="800"></canvas>
+                    <button id="downloadBtn">Download Image</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
