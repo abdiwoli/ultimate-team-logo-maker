@@ -22,6 +22,8 @@ const state = {
     fontFamily: 'Arial',
     textStrokeWidth: 8,
     textStrokeColor: '#2b369b',
+    nameTextSize: 80,
+    numberTextSize: 100,
     nameSpacing: 12,
     numberSpacing: 12,
     nameRadiusOffset: 0,
@@ -57,6 +59,8 @@ const inputs = {
     showStripes: document.getElementById('showStripesCheck'), // New input
     tolerance: document.getElementById('toleranceInput'),
     fontFamily: document.getElementById('fontFamilyInput'),
+    nameTextSize: document.getElementById('nameTextSizeInput'),
+    numberTextSize: document.getElementById('numberTextSizeInput'),
     textStrokeWidth: document.getElementById('textStrokeWidthInput'),
     textStrokeColor: document.getElementById('textStrokeColorInput'),
     nameSpacing: document.getElementById('nameSpacingInput'),
@@ -98,6 +102,8 @@ function addEventListeners() {
     inputs.tolerance.addEventListener('input', (e) => { state.tolerance = parseInt(e.target.value); draw() })
     inputs.fontFamily.addEventListener('change', (e) => { state.fontFamily = e.target.value; draw() })
 
+    if (inputs.nameTextSize) inputs.nameTextSize.addEventListener('input', (e) => { state.nameTextSize = parseInt(e.target.value); draw() })
+    if (inputs.numberTextSize) inputs.numberTextSize.addEventListener('input', (e) => { state.numberTextSize = parseInt(e.target.value); draw() })
     inputs.textStrokeWidth.addEventListener('input', (e) => { state.textStrokeWidth = parseInt(e.target.value); draw() })
     inputs.textStrokeColor.addEventListener('input', (e) => { state.textStrokeColor = e.target.value; draw() })
     inputs.nameSpacing.addEventListener('input', (e) => { state.nameSpacing = parseInt(e.target.value); draw() })
@@ -246,11 +252,11 @@ function draw() {
     const numberSpacing = state.numberSpacing / 100
 
     // Name (Top)
-    ctx.font = `bold 80px ${state.fontFamily}`
+    ctx.font = `bold ${state.nameTextSize}px ${state.fontFamily}`
     drawTextAlongArc(ctx, state.name.toUpperCase(), cx, cy, nameRadius, nameSpacing, true)
 
     // Number (Bottom)
-    ctx.font = `bold 100px ${state.fontFamily}`
+    ctx.font = `bold ${state.numberTextSize}px ${state.fontFamily}`
     drawTextAlongArc(ctx, state.number, cx, cy, numberRadius, numberSpacing, false)
 
     // --- 6. DRAW LOGO ---

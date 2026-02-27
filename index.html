@@ -34,7 +34,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Oswald:wght@500;700&family=Roboto+Condensed:wght@700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Oswald:wght@500;700&family=Roboto+Condensed:wght@700&family=Montserrat:wght@700&family=Poppins:wght@700&family=Open+Sans:wght@700&display=swap"
         rel="stylesheet">
 </head>
 
@@ -142,12 +142,27 @@
                         <label>Tolerance (Strength)</label>
                         <input type="range" id="toleranceInput" min="1" max="200" value="80">
 
+                        <div class="row" style="margin-top: 15px;">
+                            <div class="col">
+                                <label>Name Text Size</label>
+                                <input type="range" id="nameTextSizeInput" min="20" max="200" value="80">
+                            </div>
+                            <div class="col">
+                                <label>Number Text Size</label>
+                                <input type="range" id="numberTextSizeInput" min="20" max="200" value="100">
+                            </div>
+                        </div>
+
                         <label style="margin-top: 15px;">Font Family</label>
                         <select id="fontFamilyInput"
                             style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
                             <option value="Arial">Arial (Default)</option>
                             <option value="'Oswald', sans-serif">Oswald</option>
                             <option value="'Roboto Condensed', sans-serif">Roboto Condensed</option>
+                            <option value="'Montserrat', sans-serif">Montserrat</option>
+                            <option value="'Poppins', sans-serif">Poppins</option>
+                            <option value="'Open Sans', sans-serif">Open Sans</option>
+                            <option value="'Inter', sans-serif">Inter</option>
                             <option value="'Segoe UI', sans-serif">Segoe UI</option>
                             <option value="Times New Roman">Times New Roman</option>
                         </select>
