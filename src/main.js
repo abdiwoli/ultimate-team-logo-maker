@@ -28,6 +28,15 @@ const state = {
     numberSpacing: 12,
     nameRadiusOffset: 0,
     numberRadiusOffset: 0,
+    nameOffsetX: 0,
+    nameOffsetY: 0,
+    numberOffsetX: 0,
+    numberOffsetY: 0,
+    nameAngle: 0,
+    numberAngle: 0,
+    logoOffsetX: 0,
+    logoOffsetY: 0,
+    clipLogo: true,
     shape: 'Circle',
     ringOpacity: 0, // Default 0
     centerOpacity: 100, // Default 100
@@ -67,6 +76,15 @@ const inputs = {
     numberSpacing: document.getElementById('numberSpacingInput'),
     nameRadiusOffset: document.getElementById('nameRadiusInput'),
     numberRadiusOffset: document.getElementById('numberRadiusInput'),
+    nameOffsetX: document.getElementById('nameOffsetXInput'),
+    nameOffsetY: document.getElementById('nameOffsetYInput'),
+    numberOffsetX: document.getElementById('numberOffsetXInput'),
+    numberOffsetY: document.getElementById('numberOffsetYInput'),
+    nameAngle: document.getElementById('nameAngleInput'),
+    numberAngle: document.getElementById('numberAngleInput'),
+    logoOffsetX: document.getElementById('logoOffsetXInput'),
+    logoOffsetY: document.getElementById('logoOffsetYInput'),
+    clipLogo: document.getElementById('clipLogoCheck'),
     shape: document.getElementById('shapeInput'),
     ringOpacity: document.getElementById('ringOpacityInput'),
     centerOpacity: document.getElementById('centerOpacityInput')
@@ -110,6 +128,16 @@ function addEventListeners() {
     inputs.numberSpacing.addEventListener('input', (e) => { state.numberSpacing = parseInt(e.target.value); draw() })
     inputs.nameRadiusOffset.addEventListener('input', (e) => { state.nameRadiusOffset = parseInt(e.target.value); draw() })
     inputs.numberRadiusOffset.addEventListener('input', (e) => { state.numberRadiusOffset = parseInt(e.target.value); draw() })
+    if (inputs.nameOffsetX) inputs.nameOffsetX.addEventListener('input', (e) => { state.nameOffsetX = parseInt(e.target.value); draw() })
+    if (inputs.nameOffsetY) inputs.nameOffsetY.addEventListener('input', (e) => { state.nameOffsetY = parseInt(e.target.value); draw() })
+    if (inputs.numberOffsetX) inputs.numberOffsetX.addEventListener('input', (e) => { state.numberOffsetX = parseInt(e.target.value); draw() })
+    if (inputs.numberOffsetY) inputs.numberOffsetY.addEventListener('input', (e) => { state.numberOffsetY = parseInt(e.target.value); draw() })
+    if (inputs.nameAngle) inputs.nameAngle.addEventListener('input', (e) => { state.nameAngle = parseInt(e.target.value); draw() })
+    if (inputs.numberAngle) inputs.numberAngle.addEventListener('input', (e) => { state.numberAngle = parseInt(e.target.value); draw() })
+    if (inputs.logoOffsetX) inputs.logoOffsetX.addEventListener('input', (e) => { state.logoOffsetX = parseInt(e.target.value); draw() })
+    if (inputs.logoOffsetY) inputs.logoOffsetY.addEventListener('input', (e) => { state.logoOffsetY = parseInt(e.target.value); draw() })
+    if (inputs.clipLogo) inputs.clipLogo.addEventListener('change', (e) => { state.clipLogo = e.target.checked; draw() })
+
     inputs.shape.addEventListener('change', (e) => { state.shape = e.target.value; draw() })
     if (inputs.ringOpacity) inputs.ringOpacity.addEventListener('input', (e) => {
         state.ringOpacity = parseInt(e.target.value);
@@ -253,45 +281,58 @@ function draw() {
 
     // Name (Top)
     ctx.font = `bold ${state.nameTextSize}px ${state.fontFamily}`
-    drawTextAlongArc(ctx, state.name.toUpperCase(), cx, cy, nameRadius, nameSpacing, true)
+    drawTextAlongArc(ctx, state.name.toUpperCase(), cx + state.nameOffsetX, cy + state.nameOffsetY, nameRadius, nameSpacing, true, state.nameAngle)
 
     // Number (Bottom)
     ctx.font = `bold ${state.numberTextSize}px ${state.fontFamily}`
-    drawTextAlongArc(ctx, state.number, cx, cy, numberRadius, numberSpacing, false)
+    drawTextAlongArc(ctx, state.number, cx + state.numberOffsetX, cy + state.numberOffsetY, numberRadius, numberSpacing, false, state.numberAngle)
 
     // --- 6. DRAW LOGO ---
     if (state.logoLoaded && state.logo) {
         ctx.save()
-        ctx.beginPath()
-        drawShape(ctx, cx, cy, innerSize - 5, state.shape)
-        ctx.clip()
+        if (state.clipLogo) {
+            ctx.beginPath()
+            drawShape(ctx, cx, cy, innerSize - 5, state.shape)
+            ctx.clip()
+        }
 
         const scale = state.logoZoom / 100
-        const logoSize = (innerSize * 2) * scale
+        const logoAspectRatio = state.logo.width / state.logo.height
+        let drawWidth, drawHeight;
+        if (logoAspectRatio > 1) {
+            drawWidth = (innerSize * 2) * scale;
+            drawHeight = drawWidth / logoAspectRatio;
+        } else {
+            drawHeight = (innerSize * 2) * scale;
+            drawWidth = drawHeight * logoAspectRatio;
+        }
 
         // Create temp canvas for processing
         const tempCanvas = document.createElement('canvas')
         const tempCtx = tempCanvas.getContext('2d')
-        tempCanvas.width = logoSize
-        tempCanvas.height = logoSize
+        tempCanvas.width = drawWidth
+        tempCanvas.height = drawHeight
 
-        tempCtx.drawImage(state.logo, 0, 0, logoSize, logoSize)
+        tempCtx.drawImage(state.logo, 0, 0, drawWidth, drawHeight)
 
         // SMART BACKGROUND REMOVAL (Flood Fill)
         if (state.removeWhite) {
-            const imgData = tempCtx.getImageData(0, 0, logoSize, logoSize)
+            const imgData = tempCtx.getImageData(0, 0, drawWidth, drawHeight)
             const tolerance = state.tolerance
 
             // Flood fill from corners
             floodFillTransparency(imgData, 0, 0, tolerance)
-            floodFillTransparency(imgData, logoSize - 1, logoSize - 1, tolerance)
-            floodFillTransparency(imgData, logoSize - 1, 0, tolerance)
-            floodFillTransparency(imgData, 0, logoSize - 1, tolerance)
+            floodFillTransparency(imgData, drawWidth - 1, drawHeight - 1, tolerance)
+            floodFillTransparency(imgData, drawWidth - 1, 0, tolerance)
+            floodFillTransparency(imgData, 0, drawHeight - 1, tolerance)
 
             tempCtx.putImageData(imgData, 0, 0)
         }
 
-        ctx.drawImage(tempCanvas, cx - logoSize / 2, cy - logoSize / 2)
+        const drawX = cx - drawWidth / 2 + state.logoOffsetX;
+        const drawY = cy - drawHeight / 2 + state.logoOffsetY;
+
+        ctx.drawImage(tempCanvas, drawX, drawY)
         ctx.restore()
     } else {
         ctx.fillStyle = "rgba(100,100,100,0.5)"
@@ -336,16 +377,17 @@ function floodFillTransparency(imgData, startX, startY, tolerance) {
     }
 }
 
-function drawTextAlongArc(ctx, str, cx, cy, radius, spacing, isTop) {
+function drawTextAlongArc(ctx, str, cx, cy, radius, spacing, isTop, angleOffsetDegrees = 0) {
     ctx.save()
     const chars = str.split('')
 
     // Calculate total angle based on characters * user spacing
     // User code: (chars.length - 1) * spacing
     const totalAngle = (chars.length - 1) * spacing
+    const angleOffsetRad = angleOffsetDegrees * Math.PI / 180;
 
     // Start centering
-    const startAngle = isTop ? -Math.PI / 2 : Math.PI / 2
+    const startAngle = (isTop ? -Math.PI / 2 : Math.PI / 2) + angleOffsetRad;
     const initialOffset = startAngle - (totalAngle / 2)
 
     ctx.fillStyle = state.textColor

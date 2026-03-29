@@ -129,8 +129,8 @@
                         <label>Inner Circle Size</label>
                         <input type="range" id="innerSizeInput" min="150" max="350" value="240">
 
-                        <label>Logo Zoom</label>
-                        <input type="range" id="logoZoomInput" min="50" max="200" value="100">
+                        <label>Logo Size (Zoom)</label>
+                        <input type="range" id="logoZoomInput" min="10" max="300" value="100">
                     </div>
 
                     <div class="control-group">
@@ -189,8 +189,57 @@
 
                         <label>Number Radius Offset</label>
                         <input type="range" id="numberRadiusInput" min="-100" max="100" value="0">
+                    </div>
 
+                    <div class="control-group">
+                        <h3>5. Positioning & Movement</h3>
+                        <label>
+                            <input type="checkbox" id="clipLogoCheck" checked>
+                            Clip Logo to Inner Shape
+                        </label>
+                        <div class="row" style="margin-top: 15px;">
+                            <div class="col">
+                                <label>Logo X Offset</label>
+                                <input type="range" id="logoOffsetXInput" min="-400" max="400" value="0">
+                            </div>
+                            <div class="col">
+                                <label>Logo Y Offset</label>
+                                <input type="range" id="logoOffsetYInput" min="-400" max="400" value="0">
+                            </div>
+                        </div>
 
+                        <div class="row">
+                            <div class="col">
+                                <label>Name Angle Rotate</label>
+                                <input type="range" id="nameAngleInput" min="-180" max="180" value="0">
+                            </div>
+                            <div class="col">
+                                <label>Number Angle Rotate</label>
+                                <input type="range" id="numberAngleInput" min="-180" max="180" value="0">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <label>Name X Offset</label>
+                                <input type="range" id="nameOffsetXInput" min="-400" max="400" value="0">
+                            </div>
+                            <div class="col">
+                                <label>Name Y Offset</label>
+                                <input type="range" id="nameOffsetYInput" min="-400" max="400" value="0">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <label>Number X Offset</label>
+                                <input type="range" id="numberOffsetXInput" min="-400" max="400" value="0">
+                            </div>
+                            <div class="col">
+                                <label>Number Y Offset</label>
+                                <input type="range" id="numberOffsetYInput" min="-400" max="400" value="0">
+                            </div>
+                        </div>
                     </div>
 
                 </div>
