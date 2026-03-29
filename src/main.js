@@ -9,8 +9,10 @@ const state = {
     outerSize: 380,
     innerSize: 240,
     ringColor: '#D4AF37',
+    ringOpacity: 100,
     baseColor: '#ffffff',
     centerBgColor: '#ffffff',
+    centerBgOpacity: 100,
     innerBorderColor: '#2b369b',
     stripeColor: '#2b369b',
     showStripes: true,
@@ -66,8 +68,10 @@ const bgs = {
     outerSize: document.getElementById('outerSizeInput'),
     innerSize: document.getElementById('innerSizeInput'),
     ringColor: document.getElementById('ringColorInput'),
+    ringOpacity: document.getElementById('ringOpacityInput'),
     baseColor: document.getElementById('baseColorInput'),
     centerBgColor: document.getElementById('centerBgInput'),
+    centerBgOpacity: document.getElementById('centerBgOpacityInput'),
     innerBorderColor: document.getElementById('innerBorderColorInput'),
     stripeColor: document.getElementById('stripeColorInput'),
     showStripes: document.getElementById('showStripesCheck'),
@@ -121,8 +125,10 @@ function addEventListeners() {
     bgs.outerSize.addEventListener('input', (e) => { state.outerSize = parseInt(e.target.value); draw() });
     bgs.innerSize.addEventListener('input', (e) => { state.innerSize = parseInt(e.target.value); draw() });
     bgs.ringColor.addEventListener('input', (e) => { state.ringColor = e.target.value; draw() });
+    if(bgs.ringOpacity) bgs.ringOpacity.addEventListener('input', (e) => { state.ringOpacity = parseInt(e.target.value); draw() });
     bgs.baseColor.addEventListener('input', (e) => { state.baseColor = e.target.value; draw() });
     bgs.centerBgColor.addEventListener('input', (e) => { state.centerBgColor = e.target.value; draw() });
+    if(bgs.centerBgOpacity) bgs.centerBgOpacity.addEventListener('input', (e) => { state.centerBgOpacity = parseInt(e.target.value); draw() });
     bgs.innerBorderColor.addEventListener('input', (e) => { state.innerBorderColor = e.target.value; draw() });
     bgs.stripeColor.addEventListener('input', (e) => { state.stripeColor = e.target.value; draw() });
     bgs.showStripes.addEventListener('change', (e) => { state.showStripes = e.target.checked; draw() });
@@ -442,8 +448,10 @@ function draw() {
     ctx.beginPath()
     drawShape(ctx, cx, cy, outerSize, state.shape)
     drawShape(ctx, cx, cy, innerSize, state.shape)
+    ctx.globalAlpha = state.ringOpacity / 100;
     ctx.fillStyle = state.ringColor
     ctx.fill('evenodd')
+    ctx.globalAlpha = 1.0;
     ctx.restore()
 
     // 3. DRAW BORDERS
@@ -467,8 +475,10 @@ function draw() {
     ctx.save()
     ctx.beginPath()
     drawShape(ctx, cx, cy, innerSize, state.shape)
+    ctx.globalAlpha = state.centerBgOpacity / 100;
     ctx.fillStyle = state.centerBgColor
     ctx.fill()
+    ctx.globalAlpha = 1.0;
     ctx.restore()
 
     // 5. DRAW ELEMENTS (Bottom to Top)

@@ -75,25 +75,37 @@
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="row" style="margin-bottom: 10px;">
                             <div class="col">
                                 <label>Outer Ring Color</label>
-                                <input type="color" id="ringColorInput" value="#D4AF37">
+                                <div style="display:flex; gap:5px;">
+                                    <input type="color" id="ringColorInput" value="#D4AF37" style="height:35px; width:40px; padding:0; cursor:pointer;">
+                                    <div style="flex-grow:1;">
+                                        <label style="font-size:10px; display:block;">Opacity</label>
+                                        <input type="range" id="ringOpacityInput" min="0" max="100" value="100" style="width:100%;">
+                                    </div>
+                                </div>
                             </div>
                             <div class="col">
-                                <label>Base Background</label>
-                                <input type="color" id="baseColorInput" value="#ffffff">
+                                <label>Inner Bg Color</label>
+                                <div style="display:flex; gap:5px;">
+                                    <input type="color" id="centerBgInput" value="#ffffff" style="height:35px; width:40px; padding:0; cursor:pointer;">
+                                    <div style="flex-grow:1;">
+                                        <label style="font-size:10px; display:block;">Opacity</label>
+                                        <input type="range" id="centerBgOpacityInput" min="0" max="100" value="100" style="width:100%;">
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col">
-                                <label>Inner Bg Color</label>
-                                <input type="color" id="centerBgInput" value="#ffffff">
+                                <label>Base Canvas</label>
+                                <input type="color" id="baseColorInput" value="#ffffff" style="width:100%;">
                             </div>
                             <div class="col">
                                 <label>Inner Border</label>
-                                <input type="color" id="innerBorderColorInput" value="#2b369b">
+                                <input type="color" id="innerBorderColorInput" value="#2b369b" style="width:100%;">
                             </div>
                         </div>
 
