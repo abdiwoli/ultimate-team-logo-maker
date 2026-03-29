@@ -78,7 +78,8 @@ const bgs = {
 };
 
 const layerBtns = {
-    addText: document.getElementById('addTextBtn'),
+    addStraitText: document.getElementById('addStraitTextBtn'),
+    addCurveText: document.getElementById('addCurveTextBtn'),
     addImage: document.getElementById('addImageBtn'),
     deleteLayer: document.getElementById('deleteLayerBtn'),
     upLayer: document.getElementById('layerUpBtn'),
@@ -147,11 +148,23 @@ function addEventListeners() {
     });
 
     // Layer Buttons
-    layerBtns.addText.addEventListener('click', () => {
+    layerBtns.addStraitText.addEventListener('click', () => {
         elements.push({
-            id: elementIdCounter++, type: 'text', name: 'New Text',
+            id: elementIdCounter++, type: 'text', name: 'Straight Text',
             text: 'TEXT', x: 0, y: 0, color: '#ffffff', strokeColor: '#000000',
             size: 60, strokeWidth: 0, font: 'Arial', isCurved: false,
+            radius: 310, spacing: 12, angle: 0, isTop: true
+        });
+        selectedId = elementIdCounter - 1;
+        updateLayersListUI();
+        draw();
+    });
+
+    layerBtns.addCurveText.addEventListener('click', () => {
+        elements.push({
+            id: elementIdCounter++, type: 'text', name: 'Curved Text',
+            text: 'CURVED TEXT', x: 0, y: 0, color: '#ffffff', strokeColor: '#000000',
+            size: 60, strokeWidth: 0, font: 'Arial', isCurved: true,
             radius: 310, spacing: 12, angle: 0, isTop: true
         });
         selectedId = elementIdCounter - 1;
