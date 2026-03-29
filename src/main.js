@@ -289,10 +289,22 @@ function setupCanvasDragging() {
                 }
             } else if (el.type === 'text') {
                 if (el.isCurved) {
-                    // Approximate ring hit detection
+                    // Approximate ring hit detection bounded by angle segment
                     const dist = Math.hypot(px - el.x, py - el.y);
                     if (Math.abs(dist - el.radius) < el.size * 1.5) {
-                        clickedEl = el; break;
+                        let ptAngle = Math.atan2(py - el.y, px - el.x); 
+                        const angleOffsetRad = el.angle * Math.PI / 180;
+                        const centerAngle = (el.isTop ? -Math.PI / 2 : Math.PI / 2) + angleOffsetRad;
+                        const charsLen = el.text.length;
+                        const totalAngle = (charsLen > 0 ? charsLen - 1 : 0) * (el.spacing / 100);
+                        
+                        let diff = Math.abs(ptAngle - centerAngle);
+                        while (diff > Math.PI) diff -= Math.PI * 2;
+                        diff = Math.abs(diff);
+
+                        if (diff <= (totalAngle / 2) + 0.3) { // 0.3 rad padding
+                            clickedEl = el; break;
+                        }
                     }
                 } else {
                     ctx.font = `bold ${el.size}px ${el.font}`;
