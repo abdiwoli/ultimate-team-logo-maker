@@ -187,6 +187,9 @@
                                 <option value="Times New Roman">Times New Roman</option>
                             </select>
 
+                            <label>Text Rotation (Angle)</label>
+                            <input type="range" id="elAngleInput" min="-180" max="180" value="0" style="margin-bottom:15px; width:100%;">
+
                             <label style="margin-bottom:10px; display:block; font-weight:bold;"><input type="checkbox"
                                     id="elCurvedCheck"> Curve Text Layer</label>
                             <div id="curveProps" style="display:none; padding-left:10px; border-left:3px solid #2b369b;">
@@ -194,10 +197,10 @@
                                 <input type="range" id="elRadiusInput" min="50" max="400" value="310">
                                 <label>Letter Spacing</label>
                                 <input type="range" id="elSpacingInput" min="-10" max="50" value="12">
-                                <label>Curve Rotation</label>
-                                <input type="range" id="elAngleInput" min="-180" max="180" value="0">
+                                <label>Individual Letter Spin</label>
+                                <input type="range" id="elLetterRotationInput" min="-180" max="180" value="0">
                                 <label style="margin-top:10px; display:block;"><input type="checkbox" id="elIsTopCheck">
-                                    Bend Text UPWAY (Top)</label>
+                                    Curve at TOP Half (Rainbow shape)</label>
                             </div>
                         </div>
 

@@ -98,11 +98,12 @@ const props = {
     size: document.getElementById('elSizeInput'),
     strokeWidth: document.getElementById('elStrokeWidthInput'),
     font: document.getElementById('elFontInput'),
+    angle: document.getElementById('elAngleInput'),
     curvedCheck: document.getElementById('elCurvedCheck'),
     curveContainer: document.getElementById('curveProps'),
     radius: document.getElementById('elRadiusInput'),
     spacing: document.getElementById('elSpacingInput'),
-    angle: document.getElementById('elAngleInput'),
+    letterRotation: document.getElementById('elLetterRotationInput'),
     isTopCheck: document.getElementById('elIsTopCheck'),
     // Image
     imgContainer: document.getElementById('imageProps'),
@@ -153,7 +154,7 @@ function addEventListeners() {
             id: elementIdCounter++, type: 'text', name: 'Straight Text',
             text: 'TEXT', x: 0, y: 0, color: '#ffffff', strokeColor: '#000000',
             size: 60, strokeWidth: 0, font: 'Arial', isCurved: false,
-            radius: 310, spacing: 12, angle: 0, isTop: true
+            radius: 310, spacing: 12, angle: 0, letterRotation: 0, isTop: true
         });
         selectedId = elementIdCounter - 1;
         updateLayersListUI();
@@ -165,7 +166,7 @@ function addEventListeners() {
             id: elementIdCounter++, type: 'text', name: 'Curved Text',
             text: 'CURVED TEXT', x: 0, y: 0, color: '#ffffff', strokeColor: '#000000',
             size: 60, strokeWidth: 0, font: 'Arial', isCurved: true,
-            radius: 310, spacing: 12, angle: 0, isTop: true
+            radius: 310, spacing: 12, angle: 0, letterRotation: 0, isTop: true
         });
         selectedId = elementIdCounter - 1;
         updateLayersListUI();
@@ -264,6 +265,7 @@ function addEventListeners() {
     props.radius.addEventListener('input', updateEl('radius', asInt));
     props.spacing.addEventListener('input', updateEl('spacing', asInt));
     props.angle.addEventListener('input', updateEl('angle', asInt));
+    props.letterRotation.addEventListener('input', updateEl('letterRotation', asInt));
     props.isTopCheck.addEventListener('change', updateEl('isTop', asBool));
     
     props.scale.addEventListener('input', updateEl('scale', asInt));
@@ -412,13 +414,14 @@ function updatePropsUI() {
         props.size.value = el.size;
         props.strokeWidth.value = el.strokeWidth;
         props.font.value = el.font;
+        props.angle.value = el.angle || 0;
         props.curvedCheck.checked = el.isCurved;
         
         if (el.isCurved) {
             props.curveContainer.style.display = 'block';
             props.radius.value = el.radius;
             props.spacing.value = el.spacing;
-            props.angle.value = el.angle;
+            props.letterRotation.value = el.letterRotation || 0;
             props.isTopCheck.checked = el.isTop;
         } else {
             props.curveContainer.style.display = 'none';
@@ -563,7 +566,7 @@ function draw() {
             ctx.lineJoin = 'round'
 
             if (el.isCurved) {
-                drawTextAlongArc(ctx, el.text.toUpperCase(), cx + el.x, cy + el.y, el.radius, el.spacing / 100, el.isTop, el.angle)
+                drawTextAlongArc(ctx, el.text.toUpperCase(), cx + el.x, cy + el.y, el.radius, el.spacing / 100, el.isTop, el.angle, el.letterRotation || 0)
                 
                 if (el.id === selectedId) {
                     ctx.beginPath();
@@ -571,14 +574,20 @@ function draw() {
                     ctx.strokeStyle = 'rgba(0,229,255,0.4)'; ctx.lineWidth = el.size; ctx.stroke();
                 }
             } else {
-                if (el.strokeWidth > 0) ctx.strokeText(el.text, cx + el.x, cy + el.y);
-                ctx.fillText(el.text, cx + el.x, cy + el.y);
+                ctx.translate(cx + el.x, cy + el.y);
+                ctx.rotate((el.angle || 0) * Math.PI / 180);
+                
+                if (el.strokeWidth > 0) ctx.strokeText(el.text, 0, 0);
+                ctx.fillText(el.text, 0, 0);
                 
                 if (el.id === selectedId) {
                     const metrics = ctx.measureText(el.text);
                     ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
-                    ctx.strokeRect(cx + el.x - metrics.width/2 - 10, cy + el.y - el.size/2 - 10, metrics.width + 20, el.size + 20);
+                    ctx.strokeRect(-metrics.width/2 - 10, -el.size/2 - 10, metrics.width + 20, el.size + 20);
                 }
+                
+                ctx.rotate(-(el.angle || 0) * Math.PI / 180);
+                ctx.translate(-(cx + el.x), -(cy + el.y));
             }
             ctx.restore()
         }
@@ -631,12 +640,13 @@ function floodFillTransparency(imgData, startX, startY, tolerance, targetColor) 
     }
 }
 
-function drawTextAlongArc(ctx, str, cx, cy, radius, spacing, isTop, angleOffsetDegrees = 0) {
+function drawTextAlongArc(ctx, str, cx, cy, radius, spacing, isTop, angleOffsetDegrees = 0, letterRotationDegrees = 0) {
     ctx.save()
     const chars = str.split('')
 
     const totalAngle = (chars.length - 1) * spacing
     const angleOffsetRad = angleOffsetDegrees * Math.PI / 180;
+    const letterRotRad = letterRotationDegrees * Math.PI / 180;
 
     const startAngle = (isTop ? -Math.PI / 2 : Math.PI / 2) + angleOffsetRad;
     const initialOffset = isTop ? (startAngle - (totalAngle / 2)) : (startAngle + (totalAngle / 2));
@@ -647,9 +657,9 @@ function drawTextAlongArc(ctx, str, cx, cy, radius, spacing, isTop, angleOffsetD
         ctx.translate(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius)
 
         if (isTop) {
-            ctx.rotate(angle + Math.PI / 2)
+            ctx.rotate(angle + Math.PI / 2 + letterRotRad)
         } else {
-            ctx.rotate(angle - Math.PI / 2)
+            ctx.rotate(angle - Math.PI / 2 + letterRotRad)
         }
 
         if (ctx.lineWidth > 0) ctx.strokeText(chars[i], 0, 0)
