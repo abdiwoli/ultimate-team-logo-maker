@@ -639,10 +639,10 @@ function drawTextAlongArc(ctx, str, cx, cy, radius, spacing, isTop, angleOffsetD
     const angleOffsetRad = angleOffsetDegrees * Math.PI / 180;
 
     const startAngle = (isTop ? -Math.PI / 2 : Math.PI / 2) + angleOffsetRad;
-    const initialOffset = startAngle - (totalAngle / 2)
+    const initialOffset = isTop ? (startAngle - (totalAngle / 2)) : (startAngle + (totalAngle / 2));
 
     for (let i = 0; i < chars.length; i++) {
-        const angle = initialOffset + (i * spacing)
+        const angle = isTop ? (initialOffset + (i * spacing)) : (initialOffset - (i * spacing));
         ctx.save()
         ctx.translate(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius)
 
