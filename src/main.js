@@ -213,10 +213,11 @@ function addEventListeners() {
         const el = getSelectedElement();
         if (el) {
             el[key] = parseFn ? parseFn(e.target) : e.target.value;
-            // update list name if text changed
+            // update list name if text changed without rebuilding entire list
             if (key === 'text') {
-               el.name = el.text.substring(0, 15);
-               updateLayersListUI(false); 
+               el.name = el.text.substring(0, 15) || 'Text';
+               const option = Array.from(layersList.options).find(opt => parseInt(opt.value) === el.id);
+               if (option) option.textContent = `📝 ${el.name}`;
             }
             draw();
         }
