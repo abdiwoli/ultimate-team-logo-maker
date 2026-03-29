@@ -102,7 +102,8 @@ const props = {
     // Image
     imgContainer: document.getElementById('imageProps'),
     scale: document.getElementById('elScaleInput'),
-    removeWhiteCheck: document.getElementById('elRemoveWhiteCheck'),
+    removeBgCheck: document.getElementById('elRemoveBgCheck'),
+    removeBgColor: document.getElementById('elRemoveBgColorInput'),
     tolerance: document.getElementById('elToleranceInput'),
 };
 
@@ -162,7 +163,7 @@ function addEventListeners() {
                 elements.push({
                     id: elementIdCounter++, type: 'image', name: file.name || 'Image',
                     img: img, imgLoaded: true, x: 0, y: 0,
-                    scale: 100, removeWhite: false, tolerance: 50
+                    scale: 100, removeBg: false, removeBgColor: '#ffffff', tolerance: 50
                 });
                 selectedId = elementIdCounter - 1;
                 updateLayersListUI();
@@ -247,7 +248,8 @@ function addEventListeners() {
     props.isTopCheck.addEventListener('change', updateEl('isTop', asBool));
     
     props.scale.addEventListener('input', updateEl('scale', asInt));
-    props.removeWhiteCheck.addEventListener('change', updateEl('removeWhite', asBool));
+    props.removeBgCheck.addEventListener('change', updateEl('removeBg', asBool));
+    props.removeBgColor.addEventListener('input', updateEl('removeBgColor'));
     props.tolerance.addEventListener('input', updateEl('tolerance', asInt));
 
     // Dragging Logic
@@ -395,7 +397,8 @@ function updatePropsUI() {
         props.imgContainer.style.display = 'block';
         
         props.scale.value = el.scale;
-        props.removeWhiteCheck.checked = el.removeWhite;
+        props.removeBgCheck.checked = el.removeBg;
+        props.removeBgColor.value = el.removeBgColor || '#ffffff';
         props.tolerance.value = el.tolerance;
     }
 }
@@ -494,12 +497,13 @@ function draw() {
             tempCanvas.height = drawHeight
             tempCtx.drawImage(el.img, 0, 0, drawWidth, drawHeight)
 
-            if (el.removeWhite) {
+            if (el.removeBg) {
                 const imgData = tempCtx.getImageData(0, 0, drawWidth, drawHeight)
-                floodFillTransparency(imgData, 0, 0, el.tolerance)
-                floodFillTransparency(imgData, drawWidth - 1, drawHeight - 1, el.tolerance)
-                floodFillTransparency(imgData, drawWidth - 1, 0, el.tolerance)
-                floodFillTransparency(imgData, 0, drawHeight - 1, el.tolerance)
+                const targetColor = hexToRgb(el.removeBgColor || '#ffffff')
+                floodFillTransparency(imgData, 0, 0, el.tolerance, targetColor)
+                floodFillTransparency(imgData, drawWidth - 1, drawHeight - 1, el.tolerance, targetColor)
+                floodFillTransparency(imgData, drawWidth - 1, 0, el.tolerance, targetColor)
+                floodFillTransparency(imgData, 0, drawHeight - 1, el.tolerance, targetColor)
                 tempCtx.putImageData(imgData, 0, 0)
             }
 
@@ -549,15 +553,25 @@ function draw() {
 
 // --- HELPER FUNCTIONS ---
 
-function isWhite(data, index, tolerance) {
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : { r: 255, g: 255, b: 255 };
+}
+
+function isTargetColorMatch(data, index, targetColor, tolerance) {
     const r = data[index]
     const g = data[index + 1]
     const b = data[index + 2]
-    const threshold = 255 - tolerance
-    return (r > threshold && g > threshold && b > threshold)
+    return (Math.abs(r - targetColor.r) <= tolerance && 
+            Math.abs(g - targetColor.g) <= tolerance && 
+            Math.abs(b - targetColor.b) <= tolerance)
 }
 
-function floodFillTransparency(imgData, startX, startY, tolerance) {
+function floodFillTransparency(imgData, startX, startY, tolerance, targetColor) {
     const data = imgData.data
     const width = imgData.width
     const height = imgData.height
@@ -565,7 +579,7 @@ function floodFillTransparency(imgData, startX, startY, tolerance) {
     const visited = new Uint8Array(width * height)
     const startIdx = (startY * width + startX) * 4
 
-    if (!isWhite(data, startIdx, tolerance)) return
+    if (!isTargetColorMatch(data, startIdx, targetColor, tolerance)) return
 
     while (stack.length > 0) {
         const [x, y] = stack.pop()
@@ -575,7 +589,7 @@ function floodFillTransparency(imgData, startX, startY, tolerance) {
 
         visited[y * width + x] = 1
 
-        if (isWhite(data, idx, tolerance)) {
+        if (isTargetColorMatch(data, idx, targetColor, tolerance)) {
             data[idx + 3] = 0 // transparent
             stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1])
         }
