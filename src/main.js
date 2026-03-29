@@ -1,197 +1,406 @@
 import '../style.css'
 import { drawShape } from './shapes.js'
 
-// State
+// --- GLOBAL STATE ---
 const state = {
-    name: 'BARRE',
-    number: '15',
-    logo: null, // Image object
-    bgImage: null, // Image object for background texture
-    ringColor: '#D4AF37',
-    textColor: '#FF4500', // Updated to Orange-ish to match example
-    stripeColor: '#2b369b',
-    innerBorderColor: '#2b369b',
-    baseColor: '#ffffff', // New state for base background
-    centerBgColor: '#ffffff',
+    shape: 'Circle',
+    bgImage: null,
+    bgLoaded: false,
     outerSize: 380,
     innerSize: 240,
-    logoZoom: 100,
-    removeWhite: true,
-    showStripes: true, // New state
-    tolerance: 50,
-    fontFamily: 'Arial',
-    textStrokeWidth: 8,
-    textStrokeColor: '#2b369b',
-    nameTextSize: 80,
-    numberTextSize: 100,
-    nameSpacing: 12,
-    numberSpacing: 12,
-    nameRadiusOffset: 0,
-    numberRadiusOffset: 0,
-    nameOffsetX: 0,
-    nameOffsetY: 0,
-    numberOffsetX: 0,
-    numberOffsetY: 0,
-    nameAngle: 0,
-    numberAngle: 0,
-    logoOffsetX: 0,
-    logoOffsetY: 0,
-    clipLogo: true,
-    shape: 'Circle',
-    ringOpacity: 0, // Default 0
-    centerOpacity: 100, // Default 100
-    bgLoaded: false,
-    logoLoaded: false
+    ringColor: '#D4AF37',
+    baseColor: '#ffffff',
+    centerBgColor: '#ffffff',
+    innerBorderColor: '#2b369b',
+    stripeColor: '#2b369b',
+    showStripes: true,
 }
 
-// Elements
+// --- ELEMENTS SYSTEM ---
+let elements = [];
+let selectedId = null;
+let elementIdCounter = 1;
+
+// Initialize with some default text to guide user
+function createDefaultElements() {
+    elements.push({
+        id: elementIdCounter++,
+        type: 'text',
+        name: 'Top Curve Text',
+        text: 'TEAM NAME',
+        x: 0, y: 0,
+        color: '#ffffff', strokeColor: '#000000',
+        size: 80, strokeWidth: 0,
+        font: 'Arial',
+        isCurved: true,
+        radius: 310, spacing: 12, angle: 0, isTop: true
+    });
+    elements.push({
+        id: elementIdCounter++,
+        type: 'text',
+        name: 'Straight Subtext',
+        text: 'EST. 2026',
+        x: 0, y: 150,
+        color: '#ffffff', strokeColor: '#000000',
+        size: 30, strokeWidth: 0,
+        font: 'Arial',
+        isCurved: false,
+        radius: 310, spacing: 12, angle: 0, isTop: false
+    });
+}
+createDefaultElements();
+
+function getSelectedElement() {
+    return elements.find(el => el.id === selectedId);
+}
+
+// --- DOM ELEMENTS ---
 const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d')
-const downloadBtn = document.getElementById('downloadBtn')
+const layersList = document.getElementById('layersList');
+const propsPanel = document.getElementById('propsPanel');
 
-// Inputs
-const inputs = {
-    name: document.getElementById('nameInput'),
-    number: document.getElementById('numberInput'),
-    logo: document.getElementById('logoInput'),
+const bgs = {
+    shape: document.getElementById('shapeInput'),
     bgImage: document.getElementById('bgImageInput'),
-    ringColor: document.getElementById('ringColorInput'),
-    textColor: document.getElementById('textColorInput'),
-    stripeColor: document.getElementById('stripeColorInput'),
-    innerBorderColor: document.getElementById('innerBorderColorInput'),
-    baseColor: document.getElementById('baseColorInput'), // New input
-    centerBg: document.getElementById('centerBgInput'),
     outerSize: document.getElementById('outerSizeInput'),
     innerSize: document.getElementById('innerSizeInput'),
-    logoZoom: document.getElementById('logoZoomInput'),
-    removeWhite: document.getElementById('removeWhiteCheck'),
-    showStripes: document.getElementById('showStripesCheck'), // New input
-    tolerance: document.getElementById('toleranceInput'),
-    fontFamily: document.getElementById('fontFamilyInput'),
-    nameTextSize: document.getElementById('nameTextSizeInput'),
-    numberTextSize: document.getElementById('numberTextSizeInput'),
-    textStrokeWidth: document.getElementById('textStrokeWidthInput'),
-    textStrokeColor: document.getElementById('textStrokeColorInput'),
-    nameSpacing: document.getElementById('nameSpacingInput'),
-    numberSpacing: document.getElementById('numberSpacingInput'),
-    nameRadiusOffset: document.getElementById('nameRadiusInput'),
-    numberRadiusOffset: document.getElementById('numberRadiusInput'),
-    nameOffsetX: document.getElementById('nameOffsetXInput'),
-    nameOffsetY: document.getElementById('nameOffsetYInput'),
-    numberOffsetX: document.getElementById('numberOffsetXInput'),
-    numberOffsetY: document.getElementById('numberOffsetYInput'),
-    nameAngle: document.getElementById('nameAngleInput'),
-    numberAngle: document.getElementById('numberAngleInput'),
-    logoOffsetX: document.getElementById('logoOffsetXInput'),
-    logoOffsetY: document.getElementById('logoOffsetYInput'),
-    clipLogo: document.getElementById('clipLogoCheck'),
-    shape: document.getElementById('shapeInput'),
-    ringOpacity: document.getElementById('ringOpacityInput'),
-    centerOpacity: document.getElementById('centerOpacityInput')
-}
+    ringColor: document.getElementById('ringColorInput'),
+    baseColor: document.getElementById('baseColorInput'),
+    centerBgColor: document.getElementById('centerBgInput'),
+    innerBorderColor: document.getElementById('innerBorderColorInput'),
+    stripeColor: document.getElementById('stripeColorInput'),
+    showStripes: document.getElementById('showStripesCheck'),
+};
 
-// Initialization
+const layerBtns = {
+    addText: document.getElementById('addTextBtn'),
+    addImage: document.getElementById('addImageBtn'),
+    deleteLayer: document.getElementById('deleteLayerBtn'),
+    upLayer: document.getElementById('layerUpBtn'),
+    downLayer: document.getElementById('layerDownBtn')
+};
+
+const props = {
+    // Shared
+    x: document.getElementById('elXInput'),
+    y: document.getElementById('elYInput'),
+    // Text
+    textContainer: document.getElementById('textProps'),
+    text: document.getElementById('elTextInput'),
+    color: document.getElementById('elColorInput'),
+    strokeColor: document.getElementById('elStrokeColorInput'),
+    size: document.getElementById('elSizeInput'),
+    strokeWidth: document.getElementById('elStrokeWidthInput'),
+    font: document.getElementById('elFontInput'),
+    curvedCheck: document.getElementById('elCurvedCheck'),
+    curveContainer: document.getElementById('curveProps'),
+    radius: document.getElementById('elRadiusInput'),
+    spacing: document.getElementById('elSpacingInput'),
+    angle: document.getElementById('elAngleInput'),
+    isTopCheck: document.getElementById('elIsTopCheck'),
+    // Image
+    imgContainer: document.getElementById('imageProps'),
+    scale: document.getElementById('elScaleInput'),
+    removeWhiteCheck: document.getElementById('elRemoveWhiteCheck'),
+    tolerance: document.getElementById('elToleranceInput'),
+};
+
+
+// --- INITIALIZATION ---
 function init() {
     addEventListeners()
+    updateLayersListUI();
     draw()
 }
 
 function addEventListeners() {
-    // Text inputs
-    inputs.name.addEventListener('input', (e) => { state.name = e.target.value; draw() })
-    inputs.number.addEventListener('input', (e) => { state.number = e.target.value; draw() })
+    // Background Events
+    bgs.shape.addEventListener('change', (e) => { state.shape = e.target.value; draw() });
+    bgs.outerSize.addEventListener('input', (e) => { state.outerSize = parseInt(e.target.value); draw() });
+    bgs.innerSize.addEventListener('input', (e) => { state.innerSize = parseInt(e.target.value); draw() });
+    bgs.ringColor.addEventListener('input', (e) => { state.ringColor = e.target.value; draw() });
+    bgs.baseColor.addEventListener('input', (e) => { state.baseColor = e.target.value; draw() });
+    bgs.centerBgColor.addEventListener('input', (e) => { state.centerBgColor = e.target.value; draw() });
+    bgs.innerBorderColor.addEventListener('input', (e) => { state.innerBorderColor = e.target.value; draw() });
+    bgs.stripeColor.addEventListener('input', (e) => { state.stripeColor = e.target.value; draw() });
+    bgs.showStripes.addEventListener('change', (e) => { state.showStripes = e.target.checked; draw() });
 
-    // Color inputs
-    inputs.ringColor.addEventListener('input', (e) => { state.ringColor = e.target.value; draw() })
-    inputs.textColor.addEventListener('input', (e) => { state.textColor = e.target.value; draw() })
-    inputs.stripeColor.addEventListener('input', (e) => { state.stripeColor = e.target.value; draw() })
-    if (inputs.innerBorderColor) inputs.innerBorderColor.addEventListener('input', (e) => { state.innerBorderColor = e.target.value; draw() })
-    if (inputs.baseColor) inputs.baseColor.addEventListener('input', (e) => { state.baseColor = e.target.value; draw() })
-    inputs.centerBg.addEventListener('input', (e) => { state.centerBgColor = e.target.value; draw() })
+    bgs.bgImage.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => { state.bgImage = img; state.bgLoaded = true; draw(); }
+                img.src = ev.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
 
-    // Size inputs
-    inputs.outerSize.addEventListener('input', (e) => { state.outerSize = parseInt(e.target.value); draw() })
-    inputs.innerSize.addEventListener('input', (e) => { state.innerSize = parseInt(e.target.value); draw() })
-    inputs.logoZoom.addEventListener('input', (e) => { state.logoZoom = parseInt(e.target.value); draw() })
+    // Layer Buttons
+    layerBtns.addText.addEventListener('click', () => {
+        elements.push({
+            id: elementIdCounter++, type: 'text', name: 'New Text',
+            text: 'TEXT', x: 0, y: 0, color: '#ffffff', strokeColor: '#000000',
+            size: 60, strokeWidth: 0, font: 'Arial', isCurved: false,
+            radius: 310, spacing: 12, angle: 0, isTop: true
+        });
+        selectedId = elementIdCounter - 1;
+        updateLayersListUI();
+        draw();
+    });
 
-    // Advanced
-    inputs.removeWhite.addEventListener('change', (e) => { state.removeWhite = e.target.checked; draw() })
-    if (inputs.showStripes) inputs.showStripes.addEventListener('change', (e) => { state.showStripes = e.target.checked; draw() })
-    inputs.tolerance.addEventListener('input', (e) => { state.tolerance = parseInt(e.target.value); draw() })
-    inputs.fontFamily.addEventListener('change', (e) => { state.fontFamily = e.target.value; draw() })
+    layerBtns.addImage.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const img = new Image();
+            img.onload = () => {
+                elements.push({
+                    id: elementIdCounter++, type: 'image', name: file.name || 'Image',
+                    img: img, imgLoaded: true, x: 0, y: 0,
+                    scale: 100, removeWhite: false, tolerance: 50
+                });
+                selectedId = elementIdCounter - 1;
+                updateLayersListUI();
+                draw();
+            }
+            img.src = ev.target.result;
+        }
+        reader.readAsDataURL(file);
+        e.target.value = '';
+    });
 
-    if (inputs.nameTextSize) inputs.nameTextSize.addEventListener('input', (e) => { state.nameTextSize = parseInt(e.target.value); draw() })
-    if (inputs.numberTextSize) inputs.numberTextSize.addEventListener('input', (e) => { state.numberTextSize = parseInt(e.target.value); draw() })
-    inputs.textStrokeWidth.addEventListener('input', (e) => { state.textStrokeWidth = parseInt(e.target.value); draw() })
-    inputs.textStrokeColor.addEventListener('input', (e) => { state.textStrokeColor = e.target.value; draw() })
-    inputs.nameSpacing.addEventListener('input', (e) => { state.nameSpacing = parseInt(e.target.value); draw() })
-    inputs.numberSpacing.addEventListener('input', (e) => { state.numberSpacing = parseInt(e.target.value); draw() })
-    inputs.nameRadiusOffset.addEventListener('input', (e) => { state.nameRadiusOffset = parseInt(e.target.value); draw() })
-    inputs.numberRadiusOffset.addEventListener('input', (e) => { state.numberRadiusOffset = parseInt(e.target.value); draw() })
-    if (inputs.nameOffsetX) inputs.nameOffsetX.addEventListener('input', (e) => { state.nameOffsetX = parseInt(e.target.value); draw() })
-    if (inputs.nameOffsetY) inputs.nameOffsetY.addEventListener('input', (e) => { state.nameOffsetY = parseInt(e.target.value); draw() })
-    if (inputs.numberOffsetX) inputs.numberOffsetX.addEventListener('input', (e) => { state.numberOffsetX = parseInt(e.target.value); draw() })
-    if (inputs.numberOffsetY) inputs.numberOffsetY.addEventListener('input', (e) => { state.numberOffsetY = parseInt(e.target.value); draw() })
-    if (inputs.nameAngle) inputs.nameAngle.addEventListener('input', (e) => { state.nameAngle = parseInt(e.target.value); draw() })
-    if (inputs.numberAngle) inputs.numberAngle.addEventListener('input', (e) => { state.numberAngle = parseInt(e.target.value); draw() })
-    if (inputs.logoOffsetX) inputs.logoOffsetX.addEventListener('input', (e) => { state.logoOffsetX = parseInt(e.target.value); draw() })
-    if (inputs.logoOffsetY) inputs.logoOffsetY.addEventListener('input', (e) => { state.logoOffsetY = parseInt(e.target.value); draw() })
-    if (inputs.clipLogo) inputs.clipLogo.addEventListener('change', (e) => { state.clipLogo = e.target.checked; draw() })
+    layerBtns.deleteLayer.addEventListener('click', () => {
+        if (!selectedId) return;
+        elements = elements.filter(el => el.id !== selectedId);
+        selectedId = null;
+        updateLayersListUI();
+        draw();
+    });
 
-    inputs.shape.addEventListener('change', (e) => { state.shape = e.target.value; draw() })
-    if (inputs.ringOpacity) inputs.ringOpacity.addEventListener('input', (e) => {
-        state.ringOpacity = parseInt(e.target.value);
-        document.getElementById('ringOpacityValue').textContent = state.ringOpacity + '%';
-        draw()
-    })
-    if (inputs.centerOpacity) inputs.centerOpacity.addEventListener('input', (e) => {
-        state.centerOpacity = parseInt(e.target.value);
-        document.getElementById('centerOpacityValue').textContent = state.centerOpacity + '%';
-        draw()
-    })
+    layerBtns.upLayer.addEventListener('click', () => {
+        if (!selectedId) return;
+        const idx = elements.findIndex(el => el.id === selectedId);
+        if (idx < elements.length - 1) {
+            [elements[idx], elements[idx+1]] = [elements[idx+1], elements[idx]];
+            updateLayersListUI();
+            draw();
+        }
+    });
 
-    // File Uploads
-    inputs.logo.addEventListener('change', handleLogoUpload)
-    inputs.bgImage.addEventListener('change', handleBgUpload)
+    layerBtns.downLayer.addEventListener('click', () => {
+        if (!selectedId) return;
+        const idx = elements.findIndex(el => el.id === selectedId);
+        if (idx > 0) {
+            [elements[idx], elements[idx-1]] = [elements[idx-1], elements[idx]];
+            updateLayersListUI();
+            draw();
+        }
+    });
 
-    // Download
-    downloadBtn.addEventListener('click', downloadImage)
+    layersList.addEventListener('change', (e) => {
+        selectedId = parseInt(e.target.value);
+        updatePropsUI();
+        draw();
+    });
+
+    // Props Update Event Generator
+    const updateEl = (key, parseFn) => (e) => {
+        const el = getSelectedElement();
+        if (el) {
+            el[key] = parseFn ? parseFn(e.target) : e.target.value;
+            // update list name if text changed
+            if (key === 'text') {
+               el.name = el.text.substring(0, 15);
+               updateLayersListUI(false); 
+            }
+            draw();
+        }
+    };
+
+    const asInt = t => parseInt(t.value) || 0;
+    const asFloat = t => parseFloat(t.value) || 0;
+    const asBool = t => t.checked;
+
+    props.x.addEventListener('input', updateEl('x', asInt));
+    props.y.addEventListener('input', updateEl('y', asInt));
+    props.text.addEventListener('input', updateEl('text'));
+    props.color.addEventListener('input', updateEl('color'));
+    props.strokeColor.addEventListener('input', updateEl('strokeColor'));
+    props.size.addEventListener('input', updateEl('size', asInt));
+    props.strokeWidth.addEventListener('input', updateEl('strokeWidth', asInt));
+    props.font.addEventListener('change', updateEl('font'));
+    
+    props.curvedCheck.addEventListener('change', (e) => {
+        const el = getSelectedElement();
+        if(el) { el.isCurved = e.target.checked; updatePropsUI(); draw(); }
+    });
+    
+    props.radius.addEventListener('input', updateEl('radius', asInt));
+    props.spacing.addEventListener('input', updateEl('spacing', asInt));
+    props.angle.addEventListener('input', updateEl('angle', asInt));
+    props.isTopCheck.addEventListener('change', updateEl('isTop', asBool));
+    
+    props.scale.addEventListener('input', updateEl('scale', asInt));
+    props.removeWhiteCheck.addEventListener('change', updateEl('removeWhite', asBool));
+    props.tolerance.addEventListener('input', updateEl('tolerance', asInt));
+
+    // Dragging Logic
+    setupCanvasDragging();
+    document.getElementById('downloadBtn').addEventListener('click', downloadImage);
 }
 
-function handleLogoUpload(e) {
-    const file = e.target.files[0]
-    if (file) {
-        const reader = new FileReader()
-        reader.onload = (event) => {
-            const img = new Image()
-            img.onload = () => {
-                state.logo = img
-                state.logoLoaded = true
-                draw()
+// --- CANVAS DRAGGING ---
+let isDragging = false;
+let dragStartX = 0; let dragStartY = 0;
+let elStartX = 0; let elStartY = 0;
+
+function setupCanvasDragging() {
+    canvas.addEventListener('mousedown', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const px = (e.clientX - rect.left) * scaleX - canvas.width / 2;
+        const py = (e.clientY - rect.top) * scaleY - canvas.height / 2;
+        
+        let clickedEl = null;
+        // Top to bottom (render reverse)
+        for (let i = elements.length - 1; i >= 0; i--) {
+            const el = elements[i];
+            
+            if (el.type === 'image') {
+                const w = el.drawWidth || 100;
+                const h = el.drawHeight || 100;
+                if (px >= el.x - w/2 && px <= el.x + w/2 && py >= el.y - h/2 && py <= el.y + h/2) {
+                    clickedEl = el; break;
+                }
+            } else if (el.type === 'text') {
+                if (el.isCurved) {
+                    // Approximate ring hit detection
+                    const dist = Math.hypot(px - el.x, py - el.y);
+                    if (Math.abs(dist - el.radius) < el.size * 1.5) {
+                        clickedEl = el; break;
+                    }
+                } else {
+                    ctx.font = `bold ${el.size}px ${el.font}`;
+                    const metrics = ctx.measureText(el.text);
+                    const w = metrics.width;
+                    if (px >= el.x - w/2 && px <= el.x + w/2 && py >= el.y - el.size/2 && py <= el.y + el.size/2) {
+                        clickedEl = el; break;
+                    }
+                }
             }
-            img.src = event.target.result
         }
-        reader.readAsDataURL(file)
+
+        if (clickedEl) {
+            selectedId = clickedEl.id;
+            updateLayersListUI();
+            updatePropsUI();
+            isDragging = true;
+            dragStartX = px; dragStartY = py;
+            elStartX = clickedEl.x; elStartY = clickedEl.y;
+            draw();
+        } else {
+            selectedId = null;
+            updateLayersListUI();
+            updatePropsUI();
+            draw();
+        }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (!isDragging || !selectedId) return;
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const px = (e.clientX - rect.left) * scaleX - canvas.width / 2;
+        const py = (e.clientY - rect.top) * scaleY - canvas.height / 2;
+        
+        const dx = px - dragStartX;
+        const dy = py - dragStartY;
+        
+        const el = getSelectedElement();
+        el.x = elStartX + dx;
+        el.y = elStartY + dy;
+        
+        props.x.value = el.x;
+        props.y.value = el.y;
+        draw();
+    });
+
+    canvas.addEventListener('mouseup', () => { isDragging = false; });
+    canvas.addEventListener('mouseleave', () => { isDragging = false; });
+}
+
+// --- UI UPDATES ---
+function updateLayersListUI(forceSelect = true) {
+    layersList.innerHTML = '';
+    // Reverse display (top element first)
+    [...elements].reverse().forEach(el => {
+        const option = document.createElement('option');
+        option.value = el.id;
+        option.textContent = `${el.type === 'image' ? '🖼️' : '📝'} ${el.name}`;
+        if (el.id === selectedId) option.selected = true;
+        
+        // Add minimal styling to make list nice
+        option.style.padding = '8px';
+        option.style.borderBottom = '1px solid #eee';
+        
+        layersList.appendChild(option);
+    });
+    if (forceSelect) updatePropsUI();
+}
+
+function updatePropsUI() {
+    if (!selectedId) {
+        propsPanel.style.display = 'none';
+        return;
+    }
+    const el = getSelectedElement();
+    if (!el) return;
+
+    propsPanel.style.display = 'block';
+    
+    props.x.value = el.x;
+    props.y.value = el.y;
+
+    if (el.type === 'text') {
+        props.textContainer.style.display = 'block';
+        props.imgContainer.style.display = 'none';
+        
+        props.text.value = el.text;
+        props.color.value = el.color;
+        props.strokeColor.value = el.strokeColor;
+        props.size.value = el.size;
+        props.strokeWidth.value = el.strokeWidth;
+        props.font.value = el.font;
+        props.curvedCheck.checked = el.isCurved;
+        
+        if (el.isCurved) {
+            props.curveContainer.style.display = 'block';
+            props.radius.value = el.radius;
+            props.spacing.value = el.spacing;
+            props.angle.value = el.angle;
+            props.isTopCheck.checked = el.isTop;
+        } else {
+            props.curveContainer.style.display = 'none';
+        }
+    } else if (el.type === 'image') {
+        props.textContainer.style.display = 'none';
+        props.imgContainer.style.display = 'block';
+        
+        props.scale.value = el.scale;
+        props.removeWhiteCheck.checked = el.removeWhite;
+        props.tolerance.value = el.tolerance;
     }
 }
 
-function handleBgUpload(e) {
-    const file = e.target.files[0]
-    if (file) {
-        const reader = new FileReader()
-        reader.onload = (event) => {
-            const img = new Image()
-            img.onload = () => {
-                state.bgImage = img
-                state.bgLoaded = true
-                draw()
-            }
-            img.src = event.target.result
-        }
-        reader.readAsDataURL(file)
-    }
-}
 
+// --- MAIN DRAW ENGINE ---
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -199,26 +408,23 @@ function draw() {
     const cy = canvas.height / 2
     const { outerSize, innerSize } = state
 
-    if (innerSize >= outerSize) return // Safety check
+    if (innerSize >= outerSize) return 
 
-    // --- 1. DRAW BACKGROUND (STRIPES OR IMAGE) ---
+    // 1. DRAW BACKGROUND (STRIPES OR IMAGE)
     ctx.save()
     ctx.beginPath()
     drawShape(ctx, cx, cy, outerSize, state.shape)
     ctx.clip()
 
-    // Base background (behind stripes)
     ctx.fillStyle = state.baseColor
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     if (state.bgLoaded && state.bgImage) {
-        // Draw custom background image
         const scale = Math.max(canvas.width / state.bgImage.width, canvas.height / state.bgImage.height)
         const w = state.bgImage.width * scale
         const h = state.bgImage.height * scale
         ctx.drawImage(state.bgImage, cx - w / 2, cy - h / 2, w, h)
     } else if (state.showStripes) {
-        // Draw Stripes
         ctx.fillStyle = state.stripeColor
         const stripeWidth = 60
         for (let i = -10; i < 10; i++) {
@@ -227,22 +433,17 @@ function draw() {
     }
     ctx.restore()
 
-    // --- 2. DRAW RING BACKGROUND ---
+    // 2. DRAW RING BACKGROUND
     ctx.save()
     ctx.beginPath()
     drawShape(ctx, cx, cy, outerSize, state.shape)
     drawShape(ctx, cx, cy, innerSize, state.shape)
-
-    ctx.globalAlpha = state.ringOpacity / 100
     ctx.fillStyle = state.ringColor
     ctx.fill('evenodd')
     ctx.restore()
 
-    // --- 3. DRAW BORDERS ---
+    // 3. DRAW BORDERS
     ctx.save()
-    ctx.strokeStyle = state.stripeColor
-    // Let's stick to consistent theme or what we have.
-
     // Inner Border
     ctx.lineWidth = 5
     ctx.strokeStyle = state.innerBorderColor
@@ -258,87 +459,91 @@ function draw() {
     ctx.stroke()
     ctx.restore()
 
-    // --- 4. CENTER BACKGROUND ---
+    // 4. CENTER BACKGROUND
     ctx.save()
     ctx.beginPath()
     drawShape(ctx, cx, cy, innerSize, state.shape)
-    ctx.globalAlpha = state.centerOpacity / 100
     ctx.fillStyle = state.centerBgColor
     ctx.fill()
     ctx.restore()
 
-    // --- 5. DRAW TEXT ---
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
+    // 5. DRAW ELEMENTS (Bottom to Top)
+    elements.forEach(el => {
+        if (el.type === 'image' && el.imgLoaded && el.img) {
+            ctx.save()
+            const scale = el.scale / 100
+            const logoAspectRatio = el.img.width / el.img.height
+            const refSize = innerSize * 2
+            
+            let drawWidth, drawHeight;
+            if (logoAspectRatio > 1) {
+                drawWidth = refSize * scale;
+                drawHeight = drawWidth / logoAspectRatio;
+            } else {
+                drawHeight = refSize * scale;
+                drawWidth = drawHeight * logoAspectRatio;
+            }
+            
+            el.drawWidth = drawWidth;
+            el.drawHeight = drawHeight;
 
-    // Base radius + separate offsets
-    const nameRadius = ((outerSize + innerSize) / 2) + state.nameRadiusOffset
-    const numberRadius = ((outerSize + innerSize) / 2) + state.numberRadiusOffset
+            const tempCanvas = document.createElement('canvas')
+            const tempCtx = tempCanvas.getContext('2d')
+            tempCanvas.width = drawWidth
+            tempCanvas.height = drawHeight
+            tempCtx.drawImage(el.img, 0, 0, drawWidth, drawHeight)
 
-    // Use separate spacing logic from user code: spacing / 100
-    const nameSpacing = state.nameSpacing / 100
-    const numberSpacing = state.numberSpacing / 100
+            if (el.removeWhite) {
+                const imgData = tempCtx.getImageData(0, 0, drawWidth, drawHeight)
+                floodFillTransparency(imgData, 0, 0, el.tolerance)
+                floodFillTransparency(imgData, drawWidth - 1, drawHeight - 1, el.tolerance)
+                floodFillTransparency(imgData, drawWidth - 1, 0, el.tolerance)
+                floodFillTransparency(imgData, 0, drawHeight - 1, el.tolerance)
+                tempCtx.putImageData(imgData, 0, 0)
+            }
 
-    // Name (Top)
-    ctx.font = `bold ${state.nameTextSize}px ${state.fontFamily}`
-    drawTextAlongArc(ctx, state.name.toUpperCase(), cx + state.nameOffsetX, cy + state.nameOffsetY, nameRadius, nameSpacing, true, state.nameAngle)
+            const drawX = cx + el.x - drawWidth / 2;
+            const drawY = cy + el.y - drawHeight / 2;
+            ctx.drawImage(tempCanvas, drawX, drawY)
+            
+            if (el.id === selectedId) {
+                ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
+                ctx.strokeRect(drawX, drawY, drawWidth, drawHeight);
+            }
+            ctx.restore()
 
-    // Number (Bottom)
-    ctx.font = `bold ${state.numberTextSize}px ${state.fontFamily}`
-    drawTextAlongArc(ctx, state.number, cx + state.numberOffsetX, cy + state.numberOffsetY, numberRadius, numberSpacing, false, state.numberAngle)
+        } else if (el.type === 'text') {
+            ctx.save()
+            ctx.font = `bold ${el.size}px ${el.font}`
+            ctx.fillStyle = el.color
+            ctx.lineWidth = el.strokeWidth
+            ctx.strokeStyle = el.strokeColor
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'middle'
+            ctx.lineJoin = 'round'
 
-    // --- 6. DRAW LOGO ---
-    if (state.logoLoaded && state.logo) {
-        ctx.save()
-        if (state.clipLogo) {
-            ctx.beginPath()
-            drawShape(ctx, cx, cy, innerSize - 5, state.shape)
-            ctx.clip()
+            if (el.isCurved) {
+                drawTextAlongArc(ctx, el.text.toUpperCase(), cx + el.x, cy + el.y, el.radius, el.spacing / 100, el.isTop, el.angle)
+                
+                if (el.id === selectedId) {
+                    ctx.beginPath();
+                    ctx.arc(cx + el.x, cy + el.y, el.radius, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(0,229,255,0.4)'; ctx.lineWidth = el.size; ctx.stroke();
+                }
+            } else {
+                if (el.strokeWidth > 0) ctx.strokeText(el.text, cx + el.x, cy + el.y);
+                ctx.fillText(el.text, cx + el.x, cy + el.y);
+                
+                if (el.id === selectedId) {
+                    const metrics = ctx.measureText(el.text);
+                    ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
+                    ctx.strokeRect(cx + el.x - metrics.width/2 - 10, cy + el.y - el.size/2 - 10, metrics.width + 20, el.size + 20);
+                }
+            }
+            ctx.restore()
         }
+    });
 
-        const scale = state.logoZoom / 100
-        const logoAspectRatio = state.logo.width / state.logo.height
-        let drawWidth, drawHeight;
-        if (logoAspectRatio > 1) {
-            drawWidth = (innerSize * 2) * scale;
-            drawHeight = drawWidth / logoAspectRatio;
-        } else {
-            drawHeight = (innerSize * 2) * scale;
-            drawWidth = drawHeight * logoAspectRatio;
-        }
-
-        // Create temp canvas for processing
-        const tempCanvas = document.createElement('canvas')
-        const tempCtx = tempCanvas.getContext('2d')
-        tempCanvas.width = drawWidth
-        tempCanvas.height = drawHeight
-
-        tempCtx.drawImage(state.logo, 0, 0, drawWidth, drawHeight)
-
-        // SMART BACKGROUND REMOVAL (Flood Fill)
-        if (state.removeWhite) {
-            const imgData = tempCtx.getImageData(0, 0, drawWidth, drawHeight)
-            const tolerance = state.tolerance
-
-            // Flood fill from corners
-            floodFillTransparency(imgData, 0, 0, tolerance)
-            floodFillTransparency(imgData, drawWidth - 1, drawHeight - 1, tolerance)
-            floodFillTransparency(imgData, drawWidth - 1, 0, tolerance)
-            floodFillTransparency(imgData, 0, drawHeight - 1, tolerance)
-
-            tempCtx.putImageData(imgData, 0, 0)
-        }
-
-        const drawX = cx - drawWidth / 2 + state.logoOffsetX;
-        const drawY = cy - drawHeight / 2 + state.logoOffsetY;
-
-        ctx.drawImage(tempCanvas, drawX, drawY)
-        ctx.restore()
-    } else {
-        ctx.fillStyle = "rgba(100,100,100,0.5)"
-        ctx.font = "30px Arial"
-        ctx.fillText("Upload Logo", cx, cy)
-    }
 }
 
 // --- HELPER FUNCTIONS ---
@@ -359,7 +564,6 @@ function floodFillTransparency(imgData, startX, startY, tolerance) {
     const visited = new Uint8Array(width * height)
     const startIdx = (startY * width + startX) * 4
 
-    // Safety check: if start pixel isn't white, don't fill (prevents clearing whole image if it's full bleed color)
     if (!isWhite(data, startIdx, tolerance)) return
 
     while (stack.length > 0) {
@@ -371,7 +575,7 @@ function floodFillTransparency(imgData, startX, startY, tolerance) {
         visited[y * width + x] = 1
 
         if (isWhite(data, idx, tolerance)) {
-            data[idx + 3] = 0 // Set alpha to 0
+            data[idx + 3] = 0 // transparent
             stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1])
         }
     }
@@ -381,50 +585,43 @@ function drawTextAlongArc(ctx, str, cx, cy, radius, spacing, isTop, angleOffsetD
     ctx.save()
     const chars = str.split('')
 
-    // Calculate total angle based on characters * user spacing
-    // User code: (chars.length - 1) * spacing
     const totalAngle = (chars.length - 1) * spacing
     const angleOffsetRad = angleOffsetDegrees * Math.PI / 180;
 
-    // Start centering
     const startAngle = (isTop ? -Math.PI / 2 : Math.PI / 2) + angleOffsetRad;
     const initialOffset = startAngle - (totalAngle / 2)
 
-    ctx.fillStyle = state.textColor
-    ctx.lineWidth = state.textStrokeWidth
-    ctx.strokeStyle = state.textStrokeColor
-    ctx.lineJoin = 'round'
-    ctx.miterLimit = 2
-
     for (let i = 0; i < chars.length; i++) {
-        // Calculate exact angle for this specific character
         const angle = initialOffset + (i * spacing)
-
         ctx.save()
         ctx.translate(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius)
 
-        // Rotate the character to match the curve
         if (isTop) {
             ctx.rotate(angle + Math.PI / 2)
         } else {
             ctx.rotate(angle - Math.PI / 2)
         }
 
-        if (state.textStrokeWidth > 0) {
-            ctx.strokeText(chars[i], 0, 0)
-        }
+        if (ctx.lineWidth > 0) ctx.strokeText(chars[i], 0, 0)
         ctx.fillText(chars[i], 0, 0)
-
         ctx.restore()
     }
     ctx.restore()
 }
 
 function downloadImage() {
+    // Before download, draw without selections
+    const prevSel = selectedId;
+    selectedId = null;
+    draw();
+    
     const link = document.createElement('a')
-    link.download = `team-${state.name}.png`
+    link.download = `ultimate-logo.png`
     link.href = canvas.toDataURL()
     link.click()
+    
+    selectedId = prevSel;
+    draw();
 }
 
 init()

@@ -41,77 +41,44 @@
 <body>
     <div id="app">
         <div class="container">
-            <h1>Ultimate Profile Generator</h1>
+            <h1>Ultimate Logo Maker</h1>
 
             <div class="main-layout">
                 <div class="controls-area">
 
                     <div class="control-group">
-                        <h3>1. Player Info</h3>
+                        <h3>1. Canvas & Background</h3>
                         <div class="row">
                             <div class="col">
-                                <label>Name</label>
-                                <input type="text" id="nameInput" value="BARRE">
+                                <label>Logo Shape</label>
+                                <select id="shapeInput"
+                                    style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                                    <option value="Circle">Circle</option>
+                                    <option value="Shield">Shield</option>
+                                    <option value="Badge">Badge</option>
+                                </select>
                             </div>
                             <div class="col">
-                                <label>Number</label>
-                                <input type="text" id="numberInput" value="15">
+                                <label>Background Texture</label>
+                                <input type="file" id="bgImageInput" accept="image/*">
                             </div>
                         </div>
-                        <label>Upload Logo</label>
-                        <input type="file" id="logoInput" accept="image/*">
 
-                        <label style="margin-top: 10px;">Background Texture (Optional)</label>
-                        <input type="file" id="bgImageInput" accept="image/*">
-
-                        <label style="margin-top: 15px;">Logo Shape</label>
-                        <select id="shapeInput"
-                            style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
-                            <option value="Circle">Circle</option>
-                            <option value="Shield">Shield</option>
-                            <option value="Badge">Badge</option>
-                        </select>
-                    </div>
-
-                    <div class="control-group">
-                        <h3>2. Colors</h3>
                         <div class="row">
                             <div class="col">
-                                <label>Ring Background</label>
+                                <label>Outer Size</label>
+                                <input type="range" id="outerSizeInput" min="200" max="400" value="380">
+                            </div>
+                            <div class="col">
+                                <label>Inner Size</label>
+                                <input type="range" id="innerSizeInput" min="100" max="390" value="240">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <label>Outer Ring Color</label>
                                 <input type="color" id="ringColorInput" value="#D4AF37">
-                                <label style="font-size: 0.8em; margin-top: 5px;">Opacity: <span
-                                        id="ringOpacityValue">0%</span></label>
-                                <input type="range" id="ringOpacityInput" min="0" max="100" value="0"
-                                    style="width: 100%;">
-                            </div>
-                            <div class="col">
-                                <label>Text Color</label>
-                                <input type="color" id="textColorInput" value="#2b369b">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <label>Stripes</label>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <input type="color" id="stripeColorInput" value="#2b369b">
-                                    <label style="font-size: 0.8em; margin: 0;"><input type="checkbox"
-                                            id="showStripesCheck" checked> Show</label>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <label>Inner Background</label>
-                                <input type="color" id="centerBgInput" value="#ffffff">
-                                <label style="font-size: 0.8em; margin-top: 5px;">Opacity: <span
-                                        id="centerOpacityValue">100%</span></label>
-                                <input type="range" id="centerOpacityInput" min="0" max="100" value="100"
-                                    style="width: 100%;">
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col">
-                                <label>Inner Border</label>
-                                <input type="color" id="innerBorderColorInput" value="#2b369b">
                             </div>
                             <div class="col">
                                 <label>Base Background</label>
@@ -119,132 +86,141 @@
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="col">
+                                <label>Inner Bg Color</label>
+                                <input type="color" id="centerBgInput" value="#ffffff">
+                            </div>
+                            <div class="col">
+                                <label>Inner Border</label>
+                                <input type="color" id="innerBorderColorInput" value="#2b369b">
+                            </div>
+                        </div>
+
+                        <label>Stripes Color</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="color" id="stripeColorInput" value="#2b369b">
+                            <label style="font-size: 0.8em; margin: 0;"><input type="checkbox" id="showStripesCheck"
+                                    checked> Show Stripes</label>
+                        </div>
                     </div>
 
                     <div class="control-group">
-                        <h3>3. Sizes</h3>
-                        <label>Outer Circle Size</label>
-                        <input type="range" id="outerSizeInput" min="300" max="390" value="380">
+                        <h3>2. Layers (Text & Images)</h3>
+                        <div class="row" style="margin-bottom: 10px;">
+                            <div class="col">
+                                <button id="addTextBtn"
+                                    style="width:100%; padding:8px; background:#2b369b; color:white; border:none; border-radius:4px; cursor:pointer;">+ Add Text</button>
+                            </div>
+                            <div class="col">
+                                <label
+                                    style="display:block; width:100%; padding:8px; background:#2b369b; color:white; text-align:center; border:none; border-radius:4px; font-size:13px; cursor:pointer; box-sizing: border-box;">
+                                    + Add Image
+                                    <input type="file" id="addImageBtn" accept="image/*" style="display:none;">
+                                </label>
+                            </div>
+                        </div>
 
-                        <label>Inner Circle Size</label>
-                        <input type="range" id="innerSizeInput" min="150" max="350" value="240">
-
-                        <label>Logo Size (Zoom)</label>
-                        <input type="range" id="logoZoomInput" min="10" max="300" value="100">
+                        <select id="layersList" size="6"
+                            style="width: 100%; padding: 4px; border: 1px solid #ccc; font-size:14px; background:#f9f9f9; outline:none; cursor:pointer; overflow-y:auto;"></select>
+                        <button id="deleteLayerBtn"
+                            style="width:100%; padding:8px; margin-top:5px; background: #d32f2f; color: white; border:none; border-radius:4px; cursor:pointer;">Delete
+                            Selected Layer</button>
                     </div>
 
-                    <div class="control-group">
-                        <h3>4. Advanced Tools</h3>
-                        <label>
-                            <input type="checkbox" id="removeWhiteCheck" checked>
-                            Remove White Background from Logo
-                        </label>
-                        <label>Tolerance (Strength)</label>
-                        <input type="range" id="toleranceInput" min="1" max="200" value="80">
+                    <div class="control-group" id="propsPanel" style="display:none; background:#f0f4f8; border: 2px solid #2b369b;">
+                        <h3>3. Selected Properties</h3>
+                        <p style="font-size:12px; color:#555; margin-bottom:10px;">Drag item on canvas to move.</p>
 
-                        <div class="row" style="margin-top: 15px;">
-                            <div class="col">
-                                <label>Name Text Size</label>
-                                <input type="range" id="nameTextSizeInput" min="20" max="200" value="80">
+                        <!-- TEXT PROPS -->
+                        <div id="textProps" style="display:none;">
+                            <label>Text Content</label>
+                            <input type="text" id="elTextInput"
+                                style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; margin-bottom:10px;">
+
+                            <div class="row">
+                                <div class="col">
+                                    <label>Text Color</label>
+                                    <input type="color" id="elColorInput" style="width:100%; height:30px; border:none; padding:0; cursor:pointer;">
+                                </div>
+                                <div class="col">
+                                    <label>Stroke Color</label>
+                                    <input type="color" id="elStrokeColorInput" style="width:100%; height:30px; border:none; padding:0; cursor:pointer;">
+                                </div>
                             </div>
-                            <div class="col">
-                                <label>Number Text Size</label>
-                                <input type="range" id="numberTextSizeInput" min="20" max="200" value="100">
+
+                            <label>Font Size</label>
+                            <input type="range" id="elSizeInput" min="10" max="300" value="80">
+
+                            <label>Stroke Width</label>
+                            <input type="range" id="elStrokeWidthInput" min="0" max="20" value="0">
+
+                            <label>Font Family</label>
+                            <select id="elFontInput"
+                                style="width:100%; padding:8px; border-radius:4px; border:1px solid #ccc; margin-bottom:10px;">
+                                <option value="Arial">Arial (Default)</option>
+                                <option value="'Oswald', sans-serif">Oswald</option>
+                                <option value="'Roboto Condensed', sans-serif">Roboto Condensed</option>
+                                <option value="'Montserrat', sans-serif">Montserrat</option>
+                                <option value="'Poppins', sans-serif">Poppins</option>
+                                <option value="'Open Sans', sans-serif">Open Sans</option>
+                                <option value="'Inter', sans-serif">Inter</option>
+                                <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                            </select>
+
+                            <label style="margin-bottom:10px; display:block; font-weight:bold;"><input type="checkbox"
+                                    id="elCurvedCheck"> Curve Text Layer</label>
+                            <div id="curveProps" style="display:none; padding-left:10px; border-left:3px solid #2b369b;">
+                                <label>Curve Radius</label>
+                                <input type="range" id="elRadiusInput" min="50" max="400" value="310">
+                                <label>Letter Spacing</label>
+                                <input type="range" id="elSpacingInput" min="-10" max="50" value="12">
+                                <label>Curve Rotation</label>
+                                <input type="range" id="elAngleInput" min="-180" max="180" value="0">
+                                <label style="margin-top:10px; display:block;"><input type="checkbox" id="elIsTopCheck">
+                                    Bend Text UPWAY (Top)</label>
                             </div>
                         </div>
 
-                        <label style="margin-top: 15px;">Font Family</label>
-                        <select id="fontFamilyInput"
-                            style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
-                            <option value="Arial">Arial (Default)</option>
-                            <option value="'Oswald', sans-serif">Oswald</option>
-                            <option value="'Roboto Condensed', sans-serif">Roboto Condensed</option>
-                            <option value="'Montserrat', sans-serif">Montserrat</option>
-                            <option value="'Poppins', sans-serif">Poppins</option>
-                            <option value="'Open Sans', sans-serif">Open Sans</option>
-                            <option value="'Inter', sans-serif">Inter</option>
-                            <option value="'Segoe UI', sans-serif">Segoe UI</option>
-                            <option value="Times New Roman">Times New Roman</option>
-                        </select>
-
-                        <div class="row">
-                            <div class="col">
-                                <label>Text Stroke Width</label>
-                                <input type="range" id="textStrokeWidthInput" min="0" max="10" value="0">
-                            </div>
-                            <div class="col">
-                                <label>Stroke Color</label>
-                                <input type="color" id="textStrokeColorInput" value="#000000">
+                        <!-- IMAGE PROPS -->
+                        <div id="imageProps" style="display:none;">
+                            <label>Image Size (Zoom %)</label>
+                            <input type="range" id="elScaleInput" min="10" max="300" value="100">
+                            
+                            <label style="margin-top:15px; display:block; font-weight:bold;"><input type="checkbox"
+                                    id="elRemoveWhiteCheck"> Remove White Background</label>
+                            <div style="padding-left:10px; border-left:3px solid #ccc;">
+                                <label>Tolerance (Strength)</label>
+                                <input type="range" id="elToleranceInput" min="1" max="200" value="50">
                             </div>
                         </div>
 
-                        <label>Name Spacing</label>
-                        <input type="range" id="nameSpacingInput" min="-10" max="50" value="0">
-
-                        <label>Number Spacing</label>
-                        <input type="range" id="numberSpacingInput" min="-10" max="50" value="0">
-
-                        <label>Name Radius Offset</label>
-                        <input type="range" id="nameRadiusInput" min="-100" max="100" value="0">
-
-                        <label>Number Radius Offset</label>
-                        <input type="range" id="numberRadiusInput" min="-100" max="100" value="0">
-                    </div>
-
-                    <div class="control-group">
-                        <h3>5. Positioning & Movement</h3>
-                        <label>
-                            <input type="checkbox" id="clipLogoCheck" checked>
-                            Clip Logo to Inner Shape
-                        </label>
-                        <div class="row" style="margin-top: 15px;">
+                        <!-- SHARED PROPS -->
+                        <hr style="margin-top:15px; border:none; border-top:1px solid #ccc;">
+                        <div class="row" style="margin-top: 10px;">
                             <div class="col">
-                                <label>Logo X Offset</label>
-                                <input type="range" id="logoOffsetXInput" min="-400" max="400" value="0">
+                                <label>X Pos (Offset)</label>
+                                <input type="number" id="elXInput" style="width:100%; padding:5px;">
                             </div>
                             <div class="col">
-                                <label>Logo Y Offset</label>
-                                <input type="range" id="logoOffsetYInput" min="-400" max="400" value="0">
+                                <label>Y Pos (Offset)</label>
+                                <input type="number" id="elYInput" style="width:100%; padding:5px;">
                             </div>
                         </div>
-
-                        <div class="row">
-                            <div class="col">
-                                <label>Name Angle Rotate</label>
-                                <input type="range" id="nameAngleInput" min="-180" max="180" value="0">
-                            </div>
-                            <div class="col">
-                                <label>Number Angle Rotate</label>
-                                <input type="range" id="numberAngleInput" min="-180" max="180" value="0">
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col">
-                                <label>Name X Offset</label>
-                                <input type="range" id="nameOffsetXInput" min="-400" max="400" value="0">
-                            </div>
-                            <div class="col">
-                                <label>Name Y Offset</label>
-                                <input type="range" id="nameOffsetYInput" min="-400" max="400" value="0">
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col">
-                                <label>Number X Offset</label>
-                                <input type="range" id="numberOffsetXInput" min="-400" max="400" value="0">
-                            </div>
-                            <div class="col">
-                                <label>Number Y Offset</label>
-                                <input type="range" id="numberOffsetYInput" min="-400" max="400" value="0">
-                            </div>
+                        
+                        <div style="margin-top:10px; text-align:center;">
+                            <button id="layerUpBtn" style="padding:5px 10px; cursor:pointer;">Move Layer Up ⬆️</button>
+                            <button id="layerDownBtn" style="padding:5px 10px; cursor:pointer;">Move Layer Down ⬇️</button>
                         </div>
                     </div>
 
                 </div>
 
                 <div class="preview-area">
+                    <p style="text-align:center; font-size:14px; margin-bottom:10px; color:#555; background:#fff3cd; padding:10px; border-radius:4px; font-weight:bold;">
+                        🖱️ Click and drag on the canvas to move elements directly!
+                    </p>
                     <canvas id="canvas" width="800" height="800"></canvas>
                     <button id="downloadBtn">Download Image</button>
                 </div>
