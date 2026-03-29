@@ -6,6 +6,8 @@ const state = {
     shape: 'Circle',
     bgImage: null,
     bgLoaded: false,
+    innerBgImage: null,
+    innerBgLoaded: false,
     outerSize: 380,
     innerSize: 240,
     ringColor: '#D4AF37',
@@ -65,6 +67,7 @@ const propsPanel = document.getElementById('propsPanel');
 const bgs = {
     shape: document.getElementById('shapeInput'),
     bgImage: document.getElementById('bgImageInput'),
+    innerBgImage: document.getElementById('innerBgImageInput'),
     outerSize: document.getElementById('outerSizeInput'),
     innerSize: document.getElementById('innerSizeInput'),
     ringColor: document.getElementById('ringColorInput'),
@@ -142,6 +145,19 @@ function addEventListeners() {
             reader.onload = (ev) => {
                 const img = new Image();
                 img.onload = () => { state.bgImage = img; state.bgLoaded = true; draw(); }
+                img.src = ev.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    bgs.innerBgImage.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => { state.innerBgImage = img; state.innerBgLoaded = true; draw(); }
                 img.src = ev.target.result;
             }
             reader.readAsDataURL(file);
@@ -503,6 +519,17 @@ function draw() {
     ctx.save()
     ctx.beginPath()
     drawShape(ctx, cx, cy, innerSize, state.shape)
+
+    if (state.innerBgLoaded && state.innerBgImage) {
+        ctx.save()
+        ctx.clip()
+        const scale = Math.max((innerSize*2) / state.innerBgImage.width, (innerSize*2) / state.innerBgImage.height)
+        const w = state.innerBgImage.width * scale
+        const h = state.innerBgImage.height * scale
+        ctx.drawImage(state.innerBgImage, cx - w / 2, cy - h / 2, w, h)
+        ctx.restore()
+    }
+
     ctx.globalAlpha = state.centerBgOpacity / 100;
     ctx.fillStyle = state.centerBgColor
     ctx.fill()
